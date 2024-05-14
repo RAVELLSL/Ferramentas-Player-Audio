@@ -9,8 +9,8 @@
     <style>
         body {
             font-family: 'Roboto', sans-serif;
-            background-color: #282c34;
-            color: #bbb;
+            background-color: #e0e0e0; /* Background claro, mas não branco */
+            color: #333;
             margin: 0;
             padding: 0;
             display: flex;
@@ -22,29 +22,30 @@
         .container {
             width: 90%;
             max-width: 600px;
-            background-color: #20232a;
+            background-color: #f5f5f5; /* Cor clara para o container */
             padding: 20px;
             border-radius: 15px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            text-align: center; /* Centraliza o conteúdo no container */
         }
 
         .title {
             font-size: 24px;
-            color: #61dafb;
+            color: #333;
             margin-bottom: 20px;
         }
 
-        .audio-player {
-            background-color: #181a1f;
+        .media-player {
+            background-color: #ffffff;
             padding: 15px;
             border-radius: 10px;
-            box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.1);
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
         }
 
         .label {
             font-size: 16px;
             margin-bottom: 10px;
-            color: #ccc;
+            color: #333;
         }
 
         .file-input {
@@ -57,7 +58,7 @@
             color: #61dafb;
         }
 
-        .audio-controls {
+        .media-controls {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -67,12 +68,12 @@
         .button {
             border: none;
             border-radius: 50%;
-            background-color: rgba(255, 255, 255, 0.2);
-            color: white;
+            background-color: rgba(0, 0, 0, 0.1);
+            color: #333;
             padding: 1em;
             margin: 0 1em;
             cursor: pointer;
-            box-shadow: 0px 0px 10px white;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -113,25 +114,47 @@
             width: 100%;
             margin-top: 15px;
         }
+        
+        @media screen and (max-width: 600px) {
+            .container {
+                padding: 10px;
+            }
+
+            .media-controls {
+                flex-direction: column;
+            }
+
+            .button {
+                margin: 10px 0;
+            }
+
+            .settings {
+                flex-direction: column;
+            }
+
+            .setting {
+                margin: 10px 0;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1 class="title">Player de Áudio</h1>
-        <div class="audio-player">
-            <label for="audio-file" class="label">Selecione um arquivo de áudio (MP3):</label>
-            <input type="file" id="audio-file" accept="audio/mpeg" class="file-input">
-            <div class="audio-controls">
+        <div class="media-player">
+            <label for="media-file" class="label">Selecione um arquivo de áudio (MP3, WAV, WMA, MP4):</label>
+            <input type="file" id="media-file" accept="audio/mpeg, audio/wav, audio/x-ms-wma, audio/mp4" class="file-input">
+            <div class="media-controls">
                 <button type="button" id="play-button" class="button button--play">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-4.608-3.08a1 1 0 00-1.561.818v6.156a1 1 0 001.561.818l4.608-3.08a1 1 0 000-1.632z" />
                     </svg>
                 </button>
                 <button type="button" id="pause-button" class="button button--pause">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M14 5H10V19H14V5Z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M18 5H22V19H18V5Z" />
-                    </svg>                                      
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2">
+                        <rect x="6" y="4" width="4" height="16" rx="1" />
+                        <rect x="14" y="4" width="4" height="16" rx="1" />
+                    </svg>
                 </button>
                 <button type="button" id="stop-button" class="button button--stop">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -153,64 +176,63 @@
                     </div>
                 </div>
             </div>
-            <audio id="audio" class="audio" controls preload="none">
-                <source id="audio-source" src="#" type="audio/mpeg">
+            <audio id="media" class="audio" controls preload="none">
                 Seu navegador não suporta a tag de áudio.
             </audio>
         </div>       
     </div>
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const audioFileInput = document.getElementById("audio-file");
-        const audio = document.getElementById("audio");
+        const mediaFileInput = document.getElementById("media-file");
+        const media = document.getElementById("media");
         const playButton = document.getElementById("play-button");
         const pauseButton = document.getElementById("pause-button");
         const stopButton = document.getElementById("stop-button");
         const speedSelect = document.getElementById("speed");
 
-        audioFileInput.addEventListener("change", function(event) {
+        mediaFileInput.addEventListener("change", function(event) {
             const file = event.target.files[0];
-            if (!file || !file.type.startsWith("audio/")) {
-                alert("Selecione um arquivo de áudio (MP3) válido");
+            if (!file || (!file.type.startsWith("audio/") && !file.type.startsWith("video/"))) {
+                alert("Selecione um arquivo de mídia (MP3, WAV, WMA, MP4) válido");
                 return;
             }
             const fileUrl = URL.createObjectURL(file);
-            audio.src = fileUrl;
-            audio.load();  // Garante que o áudio é carregado
+            media.src = fileUrl;
+            media.load();  // Garante que a mídia é carregada
         });
 
-        audio.addEventListener('loadeddata', function() {
-            if (audio.readyState >= 2) {
-                playButton.disabled = false; // Habilita o botão de play se o áudio estiver pronto
+        media.addEventListener('loadeddata', function() {
+            if (media.readyState >= 2) {
+                playButton.disabled = false; // Habilita o botão de play se a mídia estiver pronta
             }
         });
 
         playButton.addEventListener("click", function(event) {
             event.preventDefault();
-            if (audio.paused) {
-                audio.play();
+            if (media.paused) {
+                media.play();
             }
         });
 
         pauseButton.addEventListener("click", function(event) {
             event.preventDefault();
-            if (!audio.paused) {
-                audio.pause();
+            if (!media.paused) {
+                media.pause();
             }
         });
 
         stopButton.addEventListener("click", function(event) {
             event.preventDefault();
-            audio.pause();
-            audio.currentTime = 0;
+            media.pause();
+            media.currentTime = 0;
         });
 
         speedSelect.addEventListener("change", function() {
-            audio.playbackRate = parseFloat(this.value);
+            media.playbackRate = parseFloat(this.value);
         });
 
-        audio.addEventListener("ended", function() {
-            audio.currentTime = 0;
+        media.addEventListener("ended", function() {
+            media.currentTime = 0;
             pauseButton.click();
         });
     });
